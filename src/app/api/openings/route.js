@@ -1,19 +1,13 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { listOpenings, saveOpening } from "@/server/openings-store";
-
-function isAdmin(req) {
-  if (process.env.NODE_ENV !== "production") return true;
-
-  const cookie = req.headers.get("cookie") || "";
-  const adminSecret = process.env.ADMIN_SECRET;
-  return !!adminSecret && cookie.includes(`opening_admin=${adminSecret}`);
-}
+import { listOpeningsCached, saveOpening } from "@/server/openings-store";
+import { revalidateTag } from "next/cache";
+import { isAdminRequest } from "@/server/admin";
 
 export async function GET() {
   try {
-    const openings = await listOpenings();
+    const openings = await listOpeningsCached();
     return NextResponse.json({ ok: true, openings });
   } catch (error) {
     return NextResponse.json(
@@ -25,7 +19,7 @@ export async function GET() {
 
 export async function POST(req) {
   try {
-    if (!isAdmin(req)) {
+    if (!isAdminRequest(req)) {
       return NextResponse.json(
         { ok: false, error: "Unauthorized" },
         { status: 401 }
@@ -35,9 +29,10 @@ export async function POST(req) {
     const body = await req.json();
     const opening = body?.opening;
 
-    const result = await saveOpening(opening);
+    await saveOpening(opening);
+    revalidateTag("openings");
 
-    return NextResponse.json({ ok: true, file: result.key });
+    return NextResponse.json({ ok: true });
   } catch (error) {
     return NextResponse.json(
       { ok: false, error: error.message },
@@ -48,7 +43,7 @@ export async function POST(req) {
 
 export async function PUT(req) {
   try {
-    if (!isAdmin(req)) {
+    if (!isAdminRequest(req)) {
       return NextResponse.json(
         { ok: false, error: "Unauthorized" },
         { status: 401 }
@@ -59,6 +54,7 @@ export async function PUT(req) {
     const opening = body?.opening;
 
     const result = await saveOpening(opening);
+    revalidateTag("openings");
 
     return NextResponse.json({ ok: true, file: result.key });
   } catch (error) {

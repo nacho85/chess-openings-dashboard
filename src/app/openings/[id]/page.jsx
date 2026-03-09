@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getOpening } from "@/server/openings-store";
+import { getOpening, listOpeningsCached } from "@/server/openings-store";
 import OpeningClient from "./OpeningClient";
 
 export default async function OpeningPage({ params }) {
@@ -14,5 +14,7 @@ export default async function OpeningPage({ params }) {
     notFound();
   }
 
-  return <OpeningClient opening={opening} />;
+  const openings = await listOpeningsCached();
+
+  return <OpeningClient opening={opening} openings={openings}/>;
 }

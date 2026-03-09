@@ -7,11 +7,13 @@ import ChessPanel from "@/components/ChessPanel";
 import Link from "next/link";
 import SelectedNodeNotePanel from "@/components/SelectedNodeNotePanel";
 import { findNode } from "@/components/openingTreeUtils";
+import useAdmin from "@/hooks/useAdmin";
 
-export default function OpeningClient({ opening }) {
+export default function OpeningClient({ opening, openings }) {
   const [selectedPath, setSelectedPath] = useState({ uci: [], san: [] });
   const [hoverPath, setHoverPath] = useState(null);
   const [selectedNodeId, setSelectedNodeId] = useState(opening?.root?.id ?? null);
+  const { isAdmin } = useAdmin();
 
   const selectedNode = useMemo(
     () => findNode(opening?.root, selectedNodeId),
@@ -22,17 +24,19 @@ export default function OpeningClient({ opening }) {
 
   return (
     <main className="flex h-screen">
-      <Sidebar activeId={opening.id} />
+      <Sidebar activeId={opening.id} openings={openings}/>
 
       <section className="flex-1 flex min-h-0 h-full">
         <div className="flex-1 min-h-0 h-full">
           <div className="sticky top-3 left-3 z-10 ml-2 flex gap-2">
-            <Link
-              href={`/openings/${opening.id}/edit`}
-              className="rounded border px-3 py-1 text-sm bg-neutral-900 hover:opacity-80"
-            >
-              Editar
-            </Link>
+            {isAdmin ? (
+              <Link
+                href={`/openings/${opening.id}/edit`}
+                className="rounded border px-3 py-1 text-sm bg-neutral-900 hover:opacity-80"
+              >
+                Editar
+              </Link>
+            ) : null}
 
             <Link
               href={`/openings/${opening.id}/practice?side=${opening.side ?? "w"}`}

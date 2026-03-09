@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listOpenings } from "@/server/openings-store";
+import { listOpeningsCached } from "@/server/openings-store";
 import Sidebar from "@/components/Sidebar";
 
 function OpeningPracticeLink({ opening }) {
@@ -19,13 +19,13 @@ function OpeningPracticeLink({ opening }) {
 }
 
 export default async function PracticePage() {
-  const openings = await listOpenings();
+  const openings = await listOpeningsCached();
   const whites = openings.filter((o) => (o.side ?? "w") === "w");
   const blacks = openings.filter((o) => o.side === "b");
 
   return (
     <main className="flex h-screen">
-      <Sidebar />
+      <Sidebar openings={openings}/>
 
       <section className="flex-1 overflow-auto">
         <div className="mx-auto flex max-w-6xl flex-col gap-8 p-6">

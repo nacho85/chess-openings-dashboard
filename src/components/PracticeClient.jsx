@@ -76,7 +76,7 @@ function IconButton({
   );
 }
 
-export default function PracticeClient({ opening, userSide }) {
+export default function PracticeClient({ opening, openings, userSide }) {
   const [currentNodeId, setCurrentNodeId] = useState(null);
   const [status, setStatus] = useState("playing");
   const [message, setMessage] = useState("Seguí la línea correcta.");
@@ -313,7 +313,7 @@ export default function PracticeClient({ opening, userSide }) {
 
   return (
     <main className="flex h-screen">
-      <Sidebar activeId={opening.id} />
+      <Sidebar activeId={opening.id} openings={openings} />
 
       <section className="flex-1 min-h-0 h-full overflow-auto">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 p-6">

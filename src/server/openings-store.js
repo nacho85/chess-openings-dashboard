@@ -5,9 +5,21 @@ import {
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { s3 } from "./s3";
+import { unstable_cache } from "next/cache";
 
 const Bucket = process.env.S3_BUCKET_NAME;
 const Prefix = "openings/";
+
+export const listOpeningsCached = unstable_cache(
+  async () => {
+    return await listOpenings();
+  },
+  ["openings-list"],
+  {
+    tags: ["openings"],
+    revalidate: 300,
+  }
+);
 
 function assertEnv() {
   if (!Bucket) throw new Error("Missing S3_BUCKET_NAME");
