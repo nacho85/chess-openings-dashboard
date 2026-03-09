@@ -1,0 +1,26 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+
+    build:
+      commands:
+        # Crear env.production para SSR
+        - echo "S3_BUCKET_NAME=$S3_BUCKET_NAME" >> .env.production
+        - echo "APP_AWS_REGION=$APP_AWS_REGION" >> .env.production
+        - echo "ADMIN_SECRET=$ADMIN_SECRET" >> .env.production
+
+        # Build de Next
+        - npm run build
+
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
