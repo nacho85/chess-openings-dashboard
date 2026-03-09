@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { openings } from "@/lib/openings";
+import { useEffect, useMemo, useState } from "react";
 
 function OpeningItem({ opening, activeId }) {
   const side = opening.side ?? "w";
@@ -30,8 +32,48 @@ function OpeningItem({ opening, activeId }) {
 }
 
 export default function Sidebar({ activeId }) {
-  const whites = openings.filter((o) => (o.side ?? "w") === "w");
-  const blacks = openings.filter((o) => o.side === "b");
+  const [openings, setOpenings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const res = await fetch("/api/openings", { cache: "no-store" });
+        const data = await res.json();
+
+        if (!cancelled && data?.ok) {
+          setOpenings(Array.isArray(data.openings) ? data.openings : []);
+        }
+      } catch (error) {
+        console.error("Failed to load openings for sidebar:", error);
+        if (!cancelled) {
+          setOpenings([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const whites = useMemo(
+    () => openings.filter((o) => (o.side ?? "w") === "w"),
+    [openings]
+  );
+
+  const blacks = useMemo(
+    () => openings.filter((o) => o.side === "b"),
+    [openings]
+  );
 
   return (
     <aside className="w-72 border-r p-4 flex flex-col gap-4">
@@ -55,9 +97,15 @@ export default function Sidebar({ activeId }) {
           </div>
 
           <div className="flex flex-col gap-2">
-            {whites.map((o) => (
-              <OpeningItem key={o.id} opening={o} activeId={activeId} />
-            ))}
+            {loading ? (
+              <div className="text-xs text-neutral-500">Cargando...</div>
+            ) : whites.length ? (
+              whites.map((o) => (
+                <OpeningItem key={o.id} opening={o} activeId={activeId} />
+              ))
+            ) : (
+              <div className="text-xs text-neutral-500">Sin aperturas</div>
+            )}
           </div>
         </section>
 
@@ -67,9 +115,15 @@ export default function Sidebar({ activeId }) {
           </div>
 
           <div className="flex flex-col gap-2">
-            {blacks.map((o) => (
-              <OpeningItem key={o.id} opening={o} activeId={activeId} />
-            ))}
+            {loading ? (
+              <div className="text-xs text-neutral-500">Cargando...</div>
+            ) : blacks.length ? (
+              blacks.map((o) => (
+                <OpeningItem key={o.id} opening={o} activeId={activeId} />
+              ))
+            ) : (
+              <div className="text-xs text-neutral-500">Sin aperturas</div>
+            )}
           </div>
         </section>
       </nav>

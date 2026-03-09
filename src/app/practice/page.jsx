@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { listOpenings } from "@/server/openings-store";
 import Sidebar from "@/components/Sidebar";
-import { openings } from "@/lib/openings";
 
 function OpeningPracticeLink({ opening }) {
   const side = opening.side ?? "w";
@@ -18,7 +18,8 @@ function OpeningPracticeLink({ opening }) {
   );
 }
 
-export default function PracticePage() {
+export default async function PracticePage() {
+  const openings = await listOpenings();
   const whites = openings.filter((o) => (o.side ?? "w") === "w");
   const blacks = openings.filter((o) => o.side === "b");
 

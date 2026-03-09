@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
-import { openings } from "@/lib/openings";
+import { listOpenings } from "@/server/openings-store";
 
-export default function Page() {
+export default async function Page() {
+  const openings = await listOpenings();
   const first = openings?.[0];
-  if (!first?.id) redirect("/new");
+
+  if (!first?.id) {
+    redirect("/new");
+  }
+
   redirect(`/openings/${first.id}`);
 }

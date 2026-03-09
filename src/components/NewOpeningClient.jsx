@@ -351,18 +351,15 @@ export default function NewOpeningClient({
         root: tree,
       };
 
-      const res = await fetch("/api/openings", {
-        method: isEdit ? "PUT" : "POST",
+      console.log("Saving opening:", opening);
+
+      const url = isEdit ? `/api/openings/${opening.id}` : "/api/openings";
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          isEdit
-            ? { opening }
-            : {
-                moduleName: meta.id.replace(/-/g, "_"),
-                fileName: `${meta.id}-${meta.side === "b" ? "black" : "white"}`,
-                opening,
-              }
-        ),
+        body: JSON.stringify({ opening }),
       });
 
       const text = await res.text();
@@ -388,7 +385,7 @@ export default function NewOpeningClient({
 
       if (!json.ok) throw new Error(json.error || "Save failed");
 
-      setSaveMsg(isEdit ? "Actualizado ✅" : `Guardado ✅ (archivo: ${json.file})`);
+      setSaveMsg(isEdit ? "Actualizado ✅" : "Guardado ✅");
     } catch (e) {
       setSaveMsg(`Error: ${e.message}`);
     } finally {

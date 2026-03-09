@@ -1,11 +1,14 @@
 import { notFound } from "next/navigation";
-import { openings } from "@/lib/openings";
+import { getOpening } from "@/server/openings-store";
 import NewOpeningClient from "@/components/NewOpeningClient";
 
-export default async function Page({ params }) {
+export default async function EditOpeningPage({ params }) {
   const { id } = await params;
-  const opening = openings.find((o) => o.id === id);
-  if (!opening) return notFound();
+  const opening = await getOpening(id);
+
+  if (!opening) {
+    notFound();
+  }
 
   return <NewOpeningClient initialOpening={opening} mode="edit" />;
 }
