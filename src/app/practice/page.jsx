@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { listOpeningsCached } from "@/server/openings-store";
 import Sidebar from "@/components/Sidebar";

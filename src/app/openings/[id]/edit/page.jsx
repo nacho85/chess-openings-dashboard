@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import { getOpening } from "@/server/openings-store";
 import NewOpeningClient from "@/components/NewOpeningClient";
